@@ -81,7 +81,16 @@ suggest_crs <- function(input, type = "projected",
   }
 
   # Subset the area extent polygons further to those that intersect with our area of interest
-  crs_sub <- crs_type[sf_poly, ]
+  # To (try to) avoid edge cases, use a shrunken version of the geometry
+  # (90 percent of size) to do this
+  geom <- st_geometry(sf_poly)
+  cntr <- st_centroid(sf_poly)
+
+  geom90 <- (geom - cntr) * 0.90 + cntr
+
+  st_crs(geom90) <- st_crs(crs_type)
+
+  crs_sub <- crs_type[geom90, ]
 
   # Calculate the Hausdorff distance between the area of interest and the polygons,
   # then sort in ascending order of distance and return the top requested CRSs
@@ -93,7 +102,7 @@ suggest_crs <- function(input, type = "projected",
     )) %>%
     st_drop_geometry() %>%
     dplyr::arrange(hausdist) %>%
-    dplyr::filter(row_number() <= limit) %>%
+    dplyr::filter(dplyr::row_number() <= limit) %>%
     dplyr::select(-hausdist)
 
   return(crs_output)

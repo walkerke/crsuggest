@@ -10,9 +10,13 @@ data(crs_sf)
 }
 \description{
 Used by the \code{crs_suggest()} function to look up suitable
-             coordinate reference systems for input spatial data
+             coordinate reference systems for input spatial data.  Terms of use are available
+             at \url{http://www.epsg.org/TermsOfUse.aspx}.
 }
 \details{
 Dataset of area extent polygons that correspond to CRS codes
+}
+\seealso{
+http://www.epsg.org/TermsOfUse.aspx
 }
 \keyword{datasets}
