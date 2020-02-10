@@ -101,6 +101,8 @@ ggplot(cook_age, aes(fill = estimate)) +
   scale_fill_viridis_c()
 ```
 
+![](img/cook_age.png)
+
 ### Potential questions: 
 
 * __You only show examples from the United States everywhere.  Does it work worldwide?__ Yes, it _should_ work around the world though I've noticed some problems with areas that cross the date line, and I haven't thoroughly tested everwhere.  Please file an issue if something isn't working correctly.  
