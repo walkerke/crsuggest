@@ -1,6 +1,6 @@
 # crsuggest
 
-{crsuggest} is a small R package to help spatial analysts determine an appropriate projected coordinate reference system for their data.  It implements one core function, `suggest_crs()` that attempts to match an input spatial dataset with corresponding coordinate reference systems that will work well for mapping and/or spatial analysis.  
+{crsuggest} is a small R package to help spatial analysts determine an appropriate projected coordinate reference system for their data.  It implements one core function, `suggest_crs()` that attempts to match an input spatial dataset with corresponding coordinate reference systems that will work well for mapping and/or spatial analysis.  The package is inspired by the more cleverly-named [projestions API](https://github.com/ebrelsford/projestions) and [companion QGIS plugin](https://github.com/ebrelsford/qgis-projestions). 
 
 Install from GitHub with the following command in R:
 
@@ -52,7 +52,13 @@ $ crs_units <chr> "ft", "m", "m", "m", "m", "m", "m", "m", "m…
 $ crs_proj4 <chr> "+proj=lcc +lat_0=31.1666666666667 +lon_0=-…
 ```
 
-By default, `suggest_crs()` returns the top 10 matches for a given input spatial dataset.  From here, you can browse the returned CRS options, select an appropriate entry, and use the EPSG or proj4string codes in your analysis.  
+By default, `suggest_crs()` returns the top 10 matches for a given input spatial dataset.  From here, you can browse the returned CRS options, select an appropriate entry, and use the EPSG or proj4string codes in your analysis.  For example, we can now choose a coordinate system, transform, and re-run: 
+
+```r
+landmarks_projected <- st_transform(tx_landmarks, 3081)
+
+buffer_1km <- st_buffer(landmarks_projected, 1000)
+```
 
 ### Use case 2: Customizing arguments
 
@@ -94,3 +100,7 @@ ggplot(cook_age, aes(fill = estimate)) +
   coord_sf(crs = 3435) + 
   scale_fill_viridis_c()
 ```
+
+### Potential questions: 
+
+* __You only show examples from the United States everywhere.  Does it work worldwide?__ 
