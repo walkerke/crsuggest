@@ -105,6 +105,6 @@ ggplot(cook_age, aes(fill = estimate)) +
 
 ### Potential questions: 
 
-* __You only show examples from the United States everywhere.  Does it work worldwide?__ Yes, it _should_ work around the world though I've noticed some problems with areas that cross the date line, and I haven't thoroughly tested everwhere.  Please file an issue if something isn't working correctly.  
+* __You only show examples from the United States.  Does it work worldwide?__ Yes, it _should_ work around the world though I've noticed some problems with areas that cross the date line, and I haven't thoroughly tested everwhere.  Please file an issue if something isn't working correctly.  
 * __Can I use this safely to automate projection decisions in production data pipelines?__ I'd advise against it; I see this more as a "look-up" tool to help you make informed decisions.  Research the coordinate system you plan to use - and how it handles distortion of your data - before settling on it for use in production.  
 * __Will there be a CRAN release?__ Not at this time; the look-up dataset used is too large to publish to CRAN and I haven't yet determined an alternative solution.  I'm welcome to suggestions, however.  
