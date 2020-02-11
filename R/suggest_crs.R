@@ -27,7 +27,7 @@ suggest_crs <- function(input, type = "projected",
   }
 
   # Filter the CRS object for the selected type, GCS, and units if requested
-  crs_type <- dplyr::filter(crs_sf, crs_type == type)
+  crs_type <- dplyr::filter(crsuggest::crs_sf, crs_type == type)
 
   if (!is.null(gcs)) {
     gcs <- as.character(gcs)
