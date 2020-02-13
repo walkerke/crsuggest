@@ -117,7 +117,7 @@ suggest_crs <- function(input, type = "projected",
 #' @param input An input spatial dataset of class \code{"sf"}, \code{"Spatial*"}, or \code{"RasterLayer"}.
 #' @param units (optional) The measurement units used by the returned coordinate reference system.
 #' @param inherit_gcs if \code{TRUE} (the default), the function will return a CRS suggestion that uses the geographic coordinate system of the input layer.  Otherwise, the output may use a different geographic coordinate system from the input.
-#' @param output one of \code{"epsg"}, for the EPSG code, or \code{"proj4string}, for the proj4string syntax.
+#' @param output one of \code{"epsg"}, for the EPSG code, or \code{"proj4string"}, for the proj4string syntax.
 #'
 #' @return the EPSG code or proj4string for the output coordinate reference system
 #' @export
@@ -130,7 +130,7 @@ get_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
     existing_epsg <- st_crs(input)$epsg
 
     gcs_codes <- crsuggest::crs_sf %>%
-      dplyr::filter(crs_type == "geographic 2D")
+      dplyr::filter(crs_type == "geographic 2D") %>%
       dplyr::pull(crs_code) %>%
       unique()
 
@@ -162,7 +162,7 @@ get_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
   }
 
   if (output == "epsg") {
-    toreturn <- suggestion$crs_code
+    toreturn <- suggestion$crs_code %>% as.integer()
     infodf <- crsuggest::crs_sf %>%
       dplyr::filter(crs_code == toreturn)
   } else if (output == "proj4string") {
