@@ -108,3 +108,75 @@ suggest_crs <- function(input, type = "projected",
   return(crs_output)
 
 }
+
+
+#' Return the CRS code for a "best-fit" projected coordinate reference system
+#'
+#' Return the EPSG code or proj4string syntax for the top-ranking projected coordinate reference system returned by \code{suggest_crs()}.  This function should be used with caution and is recommended for interactive work rather than in production data pipelines.
+#'
+#' @param input An input spatial dataset of class \code{"sf"}, \code{"Spatial*"}, or \code{"RasterLayer"}.
+#' @param units (optional) The measurement units used by the returned coordinate reference system.
+#' @param inherit_gcs if \code{TRUE} (the default), the function will return a CRS suggestion that uses the geographic coordinate system of the input layer.  Otherwise, the output may use a different geographic coordinate system from the input.
+#' @param output one of \code{"epsg"}, for the EPSG code, or \code{"proj4string}, for the proj4string syntax.
+#'
+#' @return the EPSG code or proj4string for the output coordinate reference system
+#' @export
+get_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
+                        output = "epsg") {
+
+
+  if (inherit_gcs) {
+    # First, determine if the dataset is in a GCS already
+    existing_epsg <- st_crs(input)$epsg
+
+    gcs_codes <- crsuggest::crs_sf %>%
+      dplyr::filter(crs_type == "geographic 2D")
+      dplyr::pull(crs_code) %>%
+      unique()
+
+    is_gcs <- existing_epsg %in% gcs_codes
+
+    if (is_gcs) {
+      suggestion <- crsuggest::suggest_crs(input,
+                                           limit = 1,
+                                           gcs = existing_epsg,
+                                           units = units)
+
+
+    } else {
+      current_gcs <- crsuggest::crs_sf %>%
+        dplyr::filter(crs_code == existing_epsg) %>%
+        pull(crs_gcs)
+
+      suggestion <- crsuggest::suggest_crs(input,
+                                           limit = 1,
+                                           gcs = current_gcs,
+                                           units = units)
+
+    }
+  } else {
+    suggestion <- crsuggest::suggest_crs(input,
+                                         limit = 1,
+                                         units = units)
+
+  }
+
+  if (output == "epsg") {
+    toreturn <- suggestion$crs_code
+    infodf <- crsuggest::crs_sf %>%
+      dplyr::filter(crs_code == toreturn)
+  } else if (output == "proj4string") {
+    toreturn <- suggestion$proj4string
+    infodf <- crsuggest::crs_sf %>%
+      dplyr::filter(crs_proj4 == toreturn)
+  } else {
+    stop("`output` must be one of 'epsg' or 'proj4string'.",
+         call. = FALSE)
+  }
+
+  message(sprintf("Using the projected CRS %s which uses '%s' for measurement units. Please visit https://spatialreference.org/ref/epsg/%s/ for more information about this CRS.",
+                  infodf$crs_name, infodf$crs_units, infodf$crs_code))
+
+  return(toreturn)
+
+}
