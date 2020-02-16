@@ -46,7 +46,7 @@ suggest_crs <- function(input, type = "projected",
   sf_proj <- st_transform(input, st_crs(crs_type))
 
   # If geometry type is POINT or MULTIPOINT, union then find the convex hull
-  # If geometry type is LINESTRING or MULTILINESTRING, use the bounding box
+  # If geometry type is LINESTRING or MULTILINESTRING, cast as POINT then do the above
   # If geometry type is POLYGON or MULTIPOLYGON, union
   geom_type <- unique(st_geometry_type(sf_proj))
 
