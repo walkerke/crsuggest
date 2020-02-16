@@ -51,6 +51,7 @@ suggest_crs <- function(input, type = "projected",
   geom_type <- unique(st_geometry_type(sf_proj))
 
   # Consider at later date how to handle mixed geometries
+  # Also consider whether to use concave hulls instead to avoid edge cases
 
   if (geom_type %in% c("POINT", "MULTIPOINT")) {
     sf_poly <- sf_proj %>%
@@ -58,7 +59,7 @@ suggest_crs <- function(input, type = "projected",
       st_convex_hull()
   } else if (geom_type %in% c("LINESTRING", "MULTILINESTRING")) {
     sf_poly <- sf_proj %>%
-      st_cast("POINT") %>%
+      st_cast("MULTIPOINT") %>%
       st_union() %>%
       st_convex_hull()
   } else if (geom_type %in% c("POLYGON", "MULTIPOLYGON")) {
