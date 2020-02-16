@@ -58,8 +58,9 @@ suggest_crs <- function(input, type = "projected",
       st_convex_hull()
   } else if (geom_type %in% c("LINESTRING", "MULTILINESTRING")) {
     sf_poly <- sf_proj %>%
-      st_bbox() %>%
-      st_as_sfc()
+      st_cast("POINT") %>%
+      st_union() %>%
+      st_convex_hull()
   } else if (geom_type %in% c("POLYGON", "MULTIPOLYGON")) {
     sf_poly <- sf_proj %>%
       st_union()
@@ -81,16 +82,11 @@ suggest_crs <- function(input, type = "projected",
   }
 
   # Subset the area extent polygons further to those that intersect with our area of interest
-  # To (try to) avoid edge cases, use a shrunken version of the geometry
-  # (90 percent of size) to do this
-  geom <- st_geometry(sf_poly)
-  cntr <- st_centroid(sf_poly)
+  # To (try to) avoid edge cases, compute a "reverse buffer" of the geometry
+  # by which we remove the area within 500m of the polygon's boundary
+  reverse_buf <- st_buffer(sf_poly, -500)
 
-  geom90 <- (geom - cntr) * 0.90 + cntr
-
-  st_crs(geom90) <- st_crs(crs_type)
-
-  crs_sub <- crs_type[geom90, ]
+  crs_sub <- crs_type[reverse_buf, ]
 
   # Calculate the Hausdorff distance between the area of interest and the polygons,
   # then sort in ascending order of distance and return the top requested CRSs
