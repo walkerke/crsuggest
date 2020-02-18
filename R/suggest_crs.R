@@ -65,22 +65,8 @@ suggest_crs <- function(input, type = "projected",
   } else if (geom_type %in% c("POLYGON", "MULTIPOLYGON")) {
     sf_poly <- sf_proj %>%
       st_union()
-
-    # Simplify the polygon if it is too large (>500 vertices)
-    # Keep simplifying until the count is sufficiently reduced
-    # (as general shape will be OK here)
-    vertex_count <- mapview::npts(sf_poly)
-
-    if (vertex_count > 500) {
-      tol <- 5000
-      vc <- vertex_count
-      while (vc > 500) {
-        sf_poly <- st_simplify(sf_poly, dTolerance = tol)
-        vc <- mapview::npts(sf_poly)
-        tol <- tol * 2
-      }
     }
-  }
+
 
   # Subset the area extent polygons further to those that intersect with our area of interest
   # To (try to) avoid edge cases, compute a "reverse buffer" of the geometry
@@ -88,6 +74,21 @@ suggest_crs <- function(input, type = "projected",
   reverse_buf <- st_buffer(sf_poly, -500)
 
   crs_sub <- crs_type[reverse_buf, ]
+
+  # Simplify the polygon if it is too large (>500 vertices)
+  # Keep simplifying until the count is sufficiently reduced
+  # (as general shape will be OK here)
+  vertex_count <- mapview::npts(sf_poly)
+
+  if (vertex_count > 500) {
+    tol <- 5000
+    vc <- vertex_count
+    while (vc > 500) {
+      sf_poly <- st_simplify(sf_poly, dTolerance = tol)
+      vc <- mapview::npts(sf_poly)
+      tol <- tol * 2
+    }
+  }
 
   # Calculate the Hausdorff distance between the area of interest and the polygons,
   # then sort in ascending order of distance and return the top requested CRSs
