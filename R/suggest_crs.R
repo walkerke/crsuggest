@@ -26,6 +26,11 @@ suggest_crs <- function(input, type = "projected",
     input <- st_as_sf(input)
   }
 
+  # If it is a simple feature collection, make into sf
+  if ("sfc" %in% class(input)) {
+    input <- st_sf(input)
+  }
+
   # Filter the CRS object for the selected type, GCS, and units if requested
   crs_type <- dplyr::filter(crsuggest::crs_sf, crs_type == type)
 
@@ -54,6 +59,11 @@ suggest_crs <- function(input, type = "projected",
   # Also consider whether to use concave hulls instead to avoid edge cases
 
   if (geom_type %in% c("POINT", "MULTIPOINT")) {
+    # If it is a single point, buffer it
+    if (nrow(sf_proj) == 1) {
+      sf_proj <- st_buffer(sf_proj, 1000)
+    }
+
     sf_poly <- sf_proj %>%
       st_union() %>%
       st_convex_hull()
@@ -74,6 +84,20 @@ suggest_crs <- function(input, type = "projected",
   reverse_buf <- st_buffer(sf_poly, -500)
 
   crs_sub <- crs_type[reverse_buf, ]
+
+  # If this doesn't yield anything, we need to re-run and keep trying until
+  # we get a valid result
+  if (nrow(crs_sub) == 0) {
+    rows <- nrow(crs_sub)
+    bufdist <- -250
+    while (rows == 0) {
+      new_buf <- st_buffer(sf_poly, bufdist)
+      crs_sub <- crs_type[new_buf, ]
+      rows <- nrow(crs_sub)
+      bufdist <- bufdist / 2
+    }
+
+  }
 
   # Simplify the polygon if it is too large (>500 vertices)
   # Keep simplifying until the count is sufficiently reduced
