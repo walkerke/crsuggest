@@ -94,13 +94,13 @@ $ crs_proj4 <chr> "+proj=tmerc +lat_0=36.6666666666667 +lon_0…
 
 We get two options to choose from; one in the State Plane system and the other in the BLM system.  
 
-Alternatively, if you just need to quickly get a code for plotting appropriately, you can use the function `get_top_crs()`.  This will return either the EPSG code or proj4string of the top CRS entry for your data.  It should be used with caution; I recommend researching the output especially before using it for spatial analysis.  
+Alternatively, if you just need to quickly get a code for plotting appropriately, you can use the function `suggest_top_crs()`.  This will return either the EPSG code or proj4string of the top CRS entry for your data.  It should be used with caution; I recommend researching the output especially before using it for spatial analysis.  
 
 ```r
-get_top_crs(cook_age)
+suggest_top_crs(cook_age)
 ```
 ```
-> get_top_crs(cook_age)
+> suggest_top_crs(cook_age)
 Using the projected CRS NAD83 / Illinois East (ftUS) which uses 'us-ft' for measurement units. Please visit https://spatialreference.org/ref/epsg/3435/ for more information about this CRS.
 [1] 3435
 ```
