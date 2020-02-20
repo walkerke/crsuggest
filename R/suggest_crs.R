@@ -143,8 +143,8 @@ suggest_crs <- function(input, type = "projected",
 #'
 #' @return the EPSG code or proj4string for the output coordinate reference system
 #' @export
-get_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
-                        output = "epsg") {
+suggest_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
+                            output = "epsg") {
 
 
   if (inherit_gcs) {
