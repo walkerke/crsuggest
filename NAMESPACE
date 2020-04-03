@@ -3,7 +3,6 @@
 export(suggest_crs)
 export(suggest_top_crs)
 import(dplyr)
-import(lwgeom)
 import(purrr)
 import(sf)
 importFrom(mapview,npts)

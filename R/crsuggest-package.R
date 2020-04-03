@@ -7,5 +7,4 @@
 #' @import sf
 #' @import dplyr
 #' @importFrom mapview npts
-#' @import lwgeom
 NULL
