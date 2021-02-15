@@ -1,6 +1,6 @@
 library(tidyverse)
 # Step 1: read in and convert .mdb database
-mdb_path <- "data-raw/EPSG_v9_8_6.mdb"
+mdb_path <- "data-raw/EPSG-v10_015-Access.mdb"
 
 tables <- Hmisc::mdb.get(mdb_path, tables = TRUE)
 
@@ -15,7 +15,7 @@ crs_df <- table_list$`Coordinate Reference System` %>%
                 crs_type = COORD.REF.SYS.KIND,
                 crs_code = COORD.REF.SYS.CODE,
                 crs_name = COORD.REF.SYS.NAME,
-                crs_gcs = SOURCE.GEOGCRS.CODE) %>%
+                crs_gcs = BASE.CRS.CODE) %>%
   dplyr::mutate_each(as.character)
 
 # Step through each code and get the units, proj4string
