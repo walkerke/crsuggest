@@ -49,7 +49,7 @@ extent_df <- httr::GET(extent_url) %>%
 extent_geom_sf <- read_rds("tmp/extent_geom_sf.rds")
 
 # Simplify the extent_geom_sf dataset
-extent_sf_simple <- rmapshaper::ms_simplify(extent_geom_sf, keep = 0.5, sys = TRUE)
+extent_sf_simple <- rmapshaper::ms_simplify(extent_geom_sf, keep = 0.3, sys = TRUE)
 
 # Check for any oddities
 mapview::mapview(extent_sf_simple[1:100,])
