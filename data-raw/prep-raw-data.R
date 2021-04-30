@@ -44,7 +44,7 @@ extent_df <- httr::GET(extent_url) %>%
 #
 # extent_geom_sf <- dplyr::bind_rows(extent_geom)
 
-write_rds(extent_geom_sf, "tmp/extent_geom_sf.rds")
+# write_rds(extent_geom_sf, "tmp/extent_geom_sf.rds")
 
 extent_geom_sf <- read_rds("tmp/extent_geom_sf.rds")
 
@@ -108,6 +108,7 @@ crs_extent$crs_units <- uts
 crs_extent$crs_proj4 <- proj4
 
 crs_sf <- crs_extent %>%
-  select(starts_with("crs"), geometry)
+  select(starts_with("crs"), geometry) %>%
+  st_transform(32663)
 
 usethis::use_data(crs_sf, compress = "xz", overwrite = TRUE)
