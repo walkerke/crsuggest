@@ -4,7 +4,9 @@
 \name{crs_sf}
 \alias{crs_sf}
 \title{Dataset of area extent polygons with CRS information}
-\format{An object of class \code{sf} (inherits from \code{data.frame}) with 7628 rows and 8 columns.}
+\format{
+An object of class \code{sf} (inherits from \code{tbl_df}, \code{tbl}, \code{data.frame}) with 6144 rows and 7 columns.
+}
 \usage{
 data(crs_sf)
 }

@@ -4,9 +4,6 @@
 \name{crsuggest}
 \alias{crsuggest}
 \title{Get information on suggested coordinate reference systems for spatial data}
-\description{
-Get information on suggested coordinate reference systems for spatial data
-}
 \author{
 Kyle Walker
 }
