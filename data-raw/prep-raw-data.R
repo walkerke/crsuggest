@@ -1,25 +1,76 @@
 library(tidyverse)
-# Step 1: read in and convert .mdb database
-mdb_path <- "data-raw/EPSG-v10_015-Access.mdb"
+library(httr)
+library(jsonlite)
+library(sf)
+library(rmapshaper)
 
-tables <- Hmisc::mdb.get(mdb_path, tables = TRUE)
+crs_url <- "https://apps.epsg.org/api/v1/CoordRefSystem/?pageSize=8000"
 
-names(tables) <- tables
+db_crs_df <- read_csv("data-raw/crs_table.csv") %>%
+  select(Code = COORD_REF_SYS_CODE,
+         Base = BASE_CRS_CODE)
 
-table_list <- purrr::map(tables, ~{
-  Hmisc::mdb.get(mdb_path, tables = .x)
-})
+crs_df <- httr::GET(crs_url) %>%
+  httr::content(as = "text") %>%
+  jsonlite::fromJSON() %>%
+  magrittr::extract2(1) %>%
+  left_join(db_crs_df, by = "Code")
 
-crs_df <- table_list$`Coordinate Reference System` %>%
-  dplyr::select(area_code = AREA.OF.USE.CODE,
-                crs_type = COORD.REF.SYS.KIND,
-                crs_code = COORD.REF.SYS.CODE,
-                crs_name = COORD.REF.SYS.NAME,
-                crs_gcs = BASE.CRS.CODE) %>%
-  dplyr::mutate_each(as.character)
+
+
+extent_url <- "https://apps.epsg.org/api/v1/Extent/?pageSize=8000"
+
+extent_df <- httr::GET(extent_url) %>%
+  httr::content(as = "text") %>%
+  jsonlite::fromJSON() %>%
+  magrittr::extract2(1)
+
+# Grab the geometry from the API and assemble a dataset
+# Takes a while, so only re-run when necessary
+#
+# extent_geom <- purrr::map(extent_df$Code, ~{
+#   req <- glue::glue("https://apps.epsg.org/api/v1/Extent/{.x}/polygon/") %>%
+#     httr::GET()
+#
+#   if (req$status_code == "200") {
+#     req %>%
+#       httr::content(as = "text") %>%
+#       sf::read_sf(.) %>%
+#       sf::st_cast("MULTIPOLYGON") %>%
+#       dplyr::mutate(Code = .x)
+#   }
+#
+# })
+#
+# extent_geom_sf <- dplyr::bind_rows(extent_geom)
+
+write_rds(extent_geom_sf, "tmp/extent_geom_sf.rds")
+
+extent_geom_sf <- read_rds("tmp/extent_geom_sf.rds")
+
+# Simplify the extent_geom_sf dataset
+extent_sf_simple <- rmapshaper::ms_simplify(extent_geom_sf, keep = 0.5, sys = TRUE)
+
+# Check for any oddities
+mapview::mapview(extent_sf_simple[1:100,])
+
+# Carry out the data merge process
+# 1. Merge shapes to extent to get extent name
+# 2. Merge extent to CRS file to get CRS info
+# 3. Clean up
+crs_extent <- extent_sf_simple %>%
+  left_join(extent_df, by = "Code") %>%
+  select(Area = Name) %>%
+  left_join(crs_df, by = "Area") %>%
+  filter(!is.na(Code)) %>%
+  transmute(crs_code = as.character(Code),
+            crs_name = Name,
+            crs_type = Type,
+            crs_gcs = Base)
+
 
 # Step through each code and get the units, proj4string
-uts <- purrr::map_chr(crs_df$crs_code, ~{
+uts <- purrr::map_chr(crs_extent$crs_code, ~{
   y <- as.numeric(.x)
 
   get_units <- function(x) {
@@ -36,7 +87,7 @@ uts <- purrr::map_chr(crs_df$crs_code, ~{
   possible_units(y)
 })
 
-proj4 <- purrr::map_chr(crs_df$crs_code, ~{
+proj4 <- purrr::map_chr(crs_extent$crs_code, ~{
   y <- as.numeric(.x)
 
   get_proj4 <- function(x) {
@@ -53,12 +104,10 @@ proj4 <- purrr::map_chr(crs_df$crs_code, ~{
   possible_proj4(y)
 })
 
-crs_df$crs_units <- uts
-crs_df$crs_proj4 <- proj4
+crs_extent$crs_units <- uts
+crs_extent$crs_proj4 <- proj4
 
-crs_sf <- sf::st_read("data-raw/EPSG_Polygons.shp") %>%
-  dplyr::transmute(area_code = as.character(AREA_CODE)) %>%
-  dplyr::left_join(crs_df, by = "area_code") %>%
-  sf::st_transform(32663)
+crs_sf <- crs_extent %>%
+  select(starts_with("crs"), geometry)
 
 usethis::use_data(crs_sf, compress = "xz", overwrite = TRUE)
