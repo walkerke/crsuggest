@@ -3,4 +3,5 @@
 .RData
 .Ruserdata
 ^prep$
-^tmp$
+tmp
+tmp/*
