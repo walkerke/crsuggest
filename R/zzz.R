@@ -3,4 +3,4 @@
 }
 
 utils::globalVariables(c("crs_gcs", "crs_units", ".", "hausdist", "crs_code",
-                         "crs_type", "crs_proj4", ".x"))
+                         "crs_type", "crs_proj4", ".x", "dist_km"))
