@@ -79,7 +79,7 @@ guess_crs <- function(input_sf, target_location, units = NULL,
 
   top_crs <- dist_df$crs_code[1]
 
-  message(sprintf("The 'best guess' for the CRS of your data is EPSG code %s.\nUse `sf::st_crs(your_data, value = %s)` to use this CRS for your data.\nView the returned dataset for other possible options.", top_crs, top_crs))
+  message(sprintf("The 'best guess' for the CRS of your data is EPSG code %s.\nUse `sf::st_crs(your_data) <- %s` to use this CRS for your data.\nView the returned dataset for other possible options.", top_crs, top_crs))
 
   return(dist_df)
 
