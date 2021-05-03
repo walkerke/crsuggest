@@ -150,12 +150,15 @@ suggest_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
 
   if (inherit_gcs) {
     # First, determine if the dataset is in a GCS already
-    existing_epsg <- st_crs(input)$epsg
+    existing_epsg <- st_crs(input)$epsg %>%
+      as.character()
 
     gcs_codes <- crsuggest::crs_sf %>%
       dplyr::filter(crs_type == "geographic 2D") %>%
       dplyr::pull(crs_code) %>%
       unique()
+
+    gcs_codes <- c(gcs_codes, "4326")
 
     is_gcs <- existing_epsg %in% gcs_codes
 
