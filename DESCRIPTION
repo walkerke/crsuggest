@@ -1,20 +1,26 @@
 Package: crsuggest
 Type: Package
 Title: Obtain Suggested Coordinate Reference System Information for Spatial Data
-Version: 0.0.6
-Date: 2020-04-02
+Version: 0.3
+Date: 2021-05-03
 Authors@R: c(person(given = "Kyle", family = "Walker", 
-           email="kwalkerdata@gmail.com", role=c("aut", "cre")))
+           email="kyle@walker-data.com", role=c("aut", "cre")))
 Description: Uses data from the EPSG Registry to look up suitable coordinate reference 
     system transformations for spatial datasets in R.  Returns a data frame with CRS codes
-    that can be used for CRS transformation and mapping with coord_sf() in ggplot2.  Please see 
-    the EPSG Dataset Terms of Use at http://www.epsg.org/TermsOfUse.aspx for more information.
+    that can be used for CRS transformation and mapping projects.  Please see 
+    the EPSG Dataset Terms of Use at <https://epsg.org/terms-of-use.html> for more information.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
   sf (>= 0.9),
+  units,
   dplyr,
   purrr,
-  mapview
-RoxygenNote: 7.0.2
+  mapview,
+  utils
+Suggests:
+  mapboxapi
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 3.3)

@@ -59,8 +59,8 @@ suggest_crs <- function(input, type = "projected",
   # Also consider whether to use concave hulls instead to avoid edge cases
 
   if (geom_type %in% c("POINT", "MULTIPOINT")) {
-    # If it is a single point, buffer it
-    if (nrow(sf_proj) == 1) {
+    # If it is one or two points, buffer it
+    if (nrow(sf_proj) %in% 1:2) {
       sf_proj <- st_buffer(sf_proj, 1000)
     }
 
@@ -115,7 +115,8 @@ suggest_crs <- function(input, type = "projected",
   }
 
   # Calculate the Hausdorff distance between the area of interest and the polygons,
-  # then sort in ascending order of distance and return the top requested CRSs
+  # then sort in ascending order of distance (then descending order of EPSG code if tied)
+  # and return the top requested CRSs
   crs_output <- crs_sub %>%
     dplyr::mutate(hausdist = as.numeric(
       st_distance(
@@ -123,7 +124,7 @@ suggest_crs <- function(input, type = "projected",
       )
     )) %>%
     st_drop_geometry() %>%
-    dplyr::arrange(hausdist) %>%
+    dplyr::arrange(hausdist, desc(crs_code)) %>%
     dplyr::filter(dplyr::row_number() <= limit) %>%
     dplyr::select(-hausdist)
 
@@ -149,12 +150,15 @@ suggest_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
 
   if (inherit_gcs) {
     # First, determine if the dataset is in a GCS already
-    existing_epsg <- st_crs(input)$epsg
+    existing_epsg <- st_crs(input)$epsg %>%
+      as.character()
 
     gcs_codes <- crsuggest::crs_sf %>%
       dplyr::filter(crs_type == "geographic 2D") %>%
       dplyr::pull(crs_code) %>%
       unique()
+
+    gcs_codes <- c(gcs_codes, "4326")
 
     is_gcs <- existing_epsg %in% gcs_codes
 
