@@ -43,6 +43,7 @@ short distances represent better guesses for the CRS whereas longer distances su
 the CRS wouldn't work.
 }
 \examples{
+\dontrun{
 library(crsuggest)
 library(sf)
 # An example data frame of projected coordinates with no CRS information included
@@ -64,5 +65,5 @@ locations_sf <- st_as_sf(locations, coords = c("X", "Y"))
 guesses <- guess_crs(locations_sf, target_location = c(-97.1071, 32.7356))
 # Set the CRS of your data with the "best guess"
 st_crs(locations_sf) <- 6584
-
+}
 }

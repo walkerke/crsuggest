@@ -31,7 +31,7 @@
 #'         your target location and the input sf object's centroid when in that CRS.
 #' @export
 #'
-#' @examples
+#' @examples \dontrun{
 #' library(crsuggest)
 #' library(sf)
 #' # An example data frame of projected coordinates with no CRS information included
@@ -54,7 +54,7 @@
 #
 #' # Set the CRS of your data with the "best guess"
 #' st_crs(locations_sf) <- 6584
-#'
+#' }
 guess_crs <- function(input_sf, target_location, units = NULL,
                       n_return = 10) {
 
