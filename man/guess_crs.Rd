@@ -31,7 +31,16 @@ A tibble of CRS guesses for your data, sorted in ascending order of distance bet
         your target location and the input sf object's centroid when in that CRS.
 }
 \description{
-Guess the CRS of a dataset that is missing CRS information
+This function will "guess" possible coordinate reference systems for spatial data that are
+lacking a CRS definition.  Input data, which must be of class \code{"sf"}, might be objects
+created from CSV files that use projected coordinates or objects created from shapefiles
+loaded with \code{sf::st_read()} that are missing .prj files.  The function requires a
+"target location" that the user knows to be within the general area of the input dataset.  It
+then identifies suitable coordinate reference systems for that area and "tests out"
+those CRSs for the input data by analyzing the distance between the dataset and the known location
+when that CRS is used.  Those distances are returned by the function in a column \code{dist_km};
+short distances represent better guesses for the CRS whereas longer distances suggest that
+the CRS wouldn't work.
 }
 \examples{
 library(crsuggest)

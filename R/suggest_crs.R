@@ -1,5 +1,13 @@
 #' Suggest coordinate systems for an input spatial dataset
 #'
+#' This function takes an input spatial dataset as input and makes "suggestions" for suitable
+#' coordinate reference systems that could be used for CRS transformations in spatial analysis
+#' projects.  The function works by analyzing the extent of the spatial dataset and comparing it
+#' to the area extents in the EPSG's coordinate reference system database.  The "suggested"
+#' coordinate reference systems are determined by minimizing the Haussdorf distances between
+#' the CRS area extents and the input dataset, subject to user preferences (such as
+#' a geographic coordinate system ID or measurement units).
+#'
 #' @param input A spatial dataset of class \code{"sf"}, \code{"Spatial*"}, or
 #'              \code{"RasterLayer"}.
 #' @param type The output CRS type; defaults to \code{"projected"}.
@@ -10,7 +18,7 @@
 #' @return A data frame with information about coordinate reference systems that could be suitably used for CRS transformation.
 #' @export
 #'
-#' @examples dontrun{
+#' @examples \dontrun{
 #'
 #' library(tigris)
 #' library(crsuggest)
@@ -162,7 +170,7 @@ suggest_crs <- function(input, type = "projected",
 #' @param inherit_gcs if \code{TRUE} (the default), the function will return a CRS suggestion that uses the geographic coordinate system of the input layer.  Otherwise, the output may use a different geographic coordinate system from the input.
 #' @param output one of \code{"epsg"}, for the EPSG code, or \code{"proj4string"}, for the proj4string syntax.
 #'
-#' @return the EPSG code or proj4string for the output coordinate reference system
+#' @return The EPSG code or proj4string for the output coordinate reference system.
 #' @export
 #'
 #' @examples \dontrun{

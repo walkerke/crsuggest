@@ -16,7 +16,7 @@ suggest_top_crs(input, units = NULL, inherit_gcs = TRUE, output = "epsg")
 \item{output}{one of \code{"epsg"}, for the EPSG code, or \code{"proj4string"}, for the proj4string syntax.}
 }
 \value{
-the EPSG code or proj4string for the output coordinate reference system
+The EPSG code or proj4string for the output coordinate reference system.
 }
 \description{
 Return the EPSG code or proj4string syntax for the top-ranking projected coordinate reference system returned by \code{suggest_crs()}.  This function should be used with caution and is recommended for interactive work rather than in production data pipelines.
