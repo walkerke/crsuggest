@@ -17,7 +17,6 @@ Let's say you've obtained a points dataset in a geographic coordinate system and
 ```r
 library(tigris)
 library(sf)
-options(tigris_class = "sf")
 
 tx_landmarks <- landmarks("TX")
 
@@ -41,15 +40,14 @@ possible_crs <- suggest_crs(tx_landmarks)
 dplyr::glimpse(possible_crs)
 ```
 ```
-Observations: 10
-Variables: 7
-$ area_code <chr> "1412", "1412", "1412", "1412", "1412", "14…
-$ crs_type  <chr> "projected", "projected", "projected", "pro…
-$ crs_code  <chr> "3080", "3081", "3082", "3083", "3084", "30…
-$ crs_name  <chr> "NAD27 / Shackleford", "NAD83 / Texas State…
-$ crs_gcs   <chr> "4267", "4269", "4269", "4269", "4152", "41…
-$ crs_units <chr> "ft", "m", "m", "m", "m", "m", "m", "m", "m…
-$ crs_proj4 <chr> "+proj=lcc +lat_0=31.1666666666667 +lon_0=-…
+Rows: 10
+Columns: 6
+$ crs_code  <chr> "6580", "6579", "3666", "3665", "3085", "3084", "3083", "3082"…
+$ crs_name  <chr> "NAD83(2011) / Texas Centric Lambert Conformal", "NAD83(2011) …
+$ crs_type  <chr> "projected", "projected", "projected", "projected", "projected…
+$ crs_gcs   <dbl> 6318, 6318, 4759, 4759, 4152, 4152, 4269, 4269, 4269, 4267
+$ crs_units <chr> "m", "m", "m", "m", "m", "m", "m", "m", "m", "ft"
+$ crs_proj4 <chr> "+proj=lcc +lat_0=18 +lon_0=-100 +lat_1=27.5 +lat_2=35 +x_0=15…
 ```
 
 By default, `suggest_crs()` returns the top 10 matches for a given input spatial dataset.  From here, you can browse the returned CRS options, select an appropriate entry, and use the EPSG or proj4string codes in your analysis.  For example, we can now choose a coordinate system, transform, and re-run: 
@@ -81,15 +79,14 @@ cook_crs <- suggest_crs(cook_age, gcs = 4269, units = "us-ft")
 dplyr::glimpse(cook_crs)
 ```
 ```
-Observations: 2
-Variables: 7
-$ area_code <chr> "2194", "3641"
-$ crs_type  <chr> "projected", "projected"
+Rows: 2
+Columns: 6
 $ crs_code  <chr> "3435", "32166"
-$ crs_name  <chr> "NAD83 / Illinois East (ftUS)", "NAD83 / BL…
-$ crs_gcs   <chr> "4269", "4269"
+$ crs_name  <chr> "NAD83 / Illinois East (ftUS)", "NAD83 / BLM 16N (ftUS)"
+$ crs_type  <chr> "projected", "projected"
+$ crs_gcs   <dbl> 4269, 4269
 $ crs_units <chr> "us-ft", "us-ft"
-$ crs_proj4 <chr> "+proj=tmerc +lat_0=36.6666666666667 +lon_0…
+$ crs_proj4 <chr> "+proj=tmerc +lat_0=36.6666666666667 +lon_0=-88.3333333333333 +k=0.99…
 ```
 
 We get two options to choose from; one in the State Plane system and the other in the BLM system.  
@@ -107,17 +104,74 @@ Using the projected CRS NAD83 / Illinois East (ftUS) which uses 'us-ft' for meas
 
 We can use the State Plane Illinois East CRS in plotting functions like `coord_sf()`:
 
-```                       
+```r                       
 ggplot(cook_age, aes(fill = estimate)) + 
   geom_sf(color = NA) + 
   coord_sf(crs = 3435) + 
   scale_fill_viridis_c()
 ```
 
-![](img/cook_age.png)
+![](tools/readme/cook_age.png)
 
-### Potential questions: 
+### Workflow 3: guessing the CRS of a dataset without projection information
 
-* __You only show examples from the United States.  Does it work worldwide?__ Yes, it _should_ work around the world though I've noticed some problems with areas that cross the date line, and I haven't thoroughly tested everwhere.  Please file an issue if something isn't working correctly.  
-* __Can I use this safely to automate projection decisions in production data pipelines?__ I'd advise against it; I see this more as a "look-up" tool to help you make informed decisions.  Research the coordinate system you plan to use - and how it handles distortion of your data - before settling on it for use in production.  
-* __Will there be a CRAN release?__ Not at this time; the look-up dataset used is too large to publish to CRAN and I haven't yet determined an alternative solution.  I'm welcome to suggestions, however.  
+Commonly, analysts will work with data for which the origin is not known.  These datasets may include CSV files that represent locations or shapefiles missing the .prj file for coordinate system information.  If these datasets are represented in projected coordinates, it can be difficult to figure out how to correctly handle the data in a geospatial software environment. 
+The `guess_crs()` function, inspired by the [WhatTheProj](https://stevage.github.io/WhatTheProj/) project, aims to help with this.  Consider this example dataset of locations collected in the field.  The coordinates are clearly from a projected CRS, but without knowledge of that CRS they cannot be mapped correctly.  
+
+```r
+library(sf)
+library(mapview)
+
+locations <- data.frame(
+  X = c(1200822.97857801, 1205015.51644983, 1202297.44383987, 1205877.68696743, 
+        1194763.21511923, 1195463.42403192, 1199836.01037452, 1207081.96500368, 
+        1201924.15986897),
+  Y = c(1246476.31475063, 1248612.72571423, 1241479.45996392, 1243898.58428024, 
+        1246033.7550009, 1241827.7730307, 1234691.50899912, 1251125.67808482, 
+        1252188.4333016),
+  id = 1:9
+)
+
+locations_sf <- st_as_sf(locations, coords = c("X", "Y"))
+
+mapview(locations_sf)
+```
+
+![](tools/readme/locations_no_crs.png)
+
+If the general location of the data is known, `guess_crs()` will make guesses on the coordinate system from which the data come.  The EPSG code will be returned along with a `dist_km` column; this is the distance between the center point of the input dataset and your known location _if_ they are in a given CRS.  If the distance is large, the coordinate system likely won't work.  If the [mapboxapi package]() is installed, you can supply a location name as your target location; otherwise, supply a length-2 coordinate pair vector of form `c(longitude, latitude)`.
+
+```r
+library(crsuggest)
+guess_crs(locations_sf, "Chennai, India", n_return = 5)
+```
+```
+Evaluating CRS options...
+The 'best guess' for the CRS of your data is EPSG code 7785.
+Use `sf::st_crs(your_data) <- 7785` to use this CRS for your data.
+View the returned dataset for other possible options.
+# A tibble: 5 x 2
+  crs_code dist_km
+  <chr>      <dbl>
+1 7785        4.09
+2 24344     806.  
+3 32644     806.  
+4 32244     806.  
+5 32444     806.  
+```
+
+The clear choice here is EPSG code 7785 for WGS84 / Tamil Nadu; no other possibilities are suitable here (and this is the correct answer!).  Use this code to set the CRS for your data which will allow for correct placement of the points.
+
+```r
+st_crs(locations_sf) <- 7785
+
+mapview(locations_sf)
+```
+
+![](tools/readme/locations_crs.png)
+
+### A word of caution: 
+
+{crsuggest} is designed to make CRS _recommendations_: the right CRS for your project will be based on a variety of factors that can't always safely be automated.  If you intend to use these tools in production data pipelines, use at your own risk and I would strongly recommend checking your data for unexpected results. I personally the packages as a "look-up" tool to help you make informed decisions.  Research the coordinate system you plan to use - and how it handles distortion of your data - before settling on it for use in production.  
+
+

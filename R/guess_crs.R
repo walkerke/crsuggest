@@ -19,6 +19,31 @@
 #' @return A tibble of CRS guesses for your data, sorted in ascending order of distance between
 #'         your target location and the input sf object's centroid when in that CRS.
 #' @export
+#'
+#' @examples
+#' library(crsuggest)
+#' library(sf)
+#' # An example data frame of projected coordinates with no CRS information included
+#' locations <- data.frame(
+#'   X = c(2312654.74514528, 2357493.02092003, 2398978.30047505, 2344378.47525209,
+#'         2475776.26735713, 2493751.94421798, 2456797.1698781, 2448392.13089886,
+#'         2319704.35367616, 2350119.25250331, 2449088.54659236, 2423774.3668849),
+#'   Y = c(6966055.04531077, 6994256.06222144, 6951975.79788762, 6902972.35980149,
+#'         6918178.81070276, 6977643.56941746, 7053989.26343385, 7024543.36487243,
+#'         7015476.52061313, 6953350.28550116, 6945011.24615857, 6912284.16691977),
+#'   id = 1:12
+#' )
+#'
+#' # Create an sf object but the CRS is not known
+#' locations_sf <- st_as_sf(locations, coords = c("X", "Y"))
+#'
+#' # Use `guess_crs()` to guess the CRS used for the coordinates along with a known coordinate
+#' # in the area of interest
+#' guesses <- guess_crs(locations_sf, target_location = c(-97.1071, 32.7356))
+#
+#' # Set the CRS of your data with the "best guess"
+#' st_crs(locations_sf) <- 6584
+#'
 guess_crs <- function(input_sf, target_location, units = NULL,
                       n_return = 10) {
 
