@@ -9,6 +9,26 @@
 #'
 #' @return A data frame with information about coordinate reference systems that could be suitably used for CRS transformation.
 #' @export
+#'
+#' @examples dontrun{
+#'
+#' library(tigris)
+#' library(crsuggest)
+#'
+#' # Get a dataset of Census tracts for Nassau County, NY
+#' nassau_tracts <- tracts("NY", "Nassau", cb = TRUE)
+#'
+#' # tigris datasets default to the NAD1983 GCS (EPSG code 4269)
+#' # What are some appropriate projected coordinate systems?
+#' suggest_crs(nassau_tracts)
+#'
+#' # Alternatively, we can require projections to have specific
+#' # geographic coordinate systems and/or units
+#' # For example, let's say we only want NAD83(HARN) (code 4152)
+#' # and we want the measurement units to be US feet
+#' suggest_crs(nassau_tracts, gcs = 4152, units = "us-ft")
+#'
+#' }
 suggest_crs <- function(input, type = "projected",
                         limit = 10, gcs = NULL,
                         units = NULL) {
@@ -145,24 +165,35 @@ suggest_crs <- function(input, type = "projected",
 #' @return the EPSG code or proj4string for the output coordinate reference system
 #' @export
 #'
-#' @examples dontrun{
+#' @examples \dontrun{
 #'
-#' library(tigris)
+#' # Let's say we are working with a demographic dataset from the US Census:
+#' library(tidycensus)
+#' library(ggplot2)
+#' library(sf)
 #' library(crsuggest)
 #'
-#' # Get a dataset of Census tracts for Nassau County, NY
-#' nassau_tracts <- tracts("NY", "Nassau", cb = TRUE)
+#' tx_income <- get_acs(
+#'   geography = "county",
+#'   variables = "B19013_001",
+#'   state = "TX",
+#'   geometry = TRUE
+#' )
 #'
-#' # tigris datasets default to the NAD1983 GCS (EPSG code 4269)
-#' # What are some appropriate projected coordinate systems?
-#' suggest_crs(nassau_tracts)
+#' # We can use `suggest_top_crs()` to return the EPSG code of the "top" suggested CRS
+#' # for statewide mapping of Texas
+#' tx_crs <- suggest_top_crs(tx_income)
 #'
-#' # Alternatively, we can require projections to have specific
-#' # geographic coordinate systems and/or units
-#' # For example, let's say we only want NAD83(HARN) (code 4152)
-#' # and we want the measurement units to be US feet
-#' suggest_crs(nassau_tracts, gcs = 4152, units = "us-ft")
+#' # The returned CRS is EPSG code 3083, NAD83 / Texas Centric Albers Equal Area.
+#' # This code can be used for visualization:
 #'
+#' ggplot(tx_income, aes(fill = estimate)) +
+#'   geom_sf() +
+#'   coord_sf(crs = tx_crs)
+#'
+#' # Alternatively, we can transform the CRS of our sf object directly:
+#'
+#' tx_projected <- st_transform(tx_income, tx_crs)
 #' }
 suggest_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
                             output = "epsg") {

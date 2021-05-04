@@ -22,7 +22,8 @@ Imports:
 Suggests:
   mapboxapi,
   tigris,
-  tidycensus
+  tidycensus,
+  ggplot2
 RoxygenNote: 7.1.1
 Depends: 
     R (>= 3.3)
