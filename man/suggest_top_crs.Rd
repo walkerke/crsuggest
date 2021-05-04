@@ -21,3 +21,24 @@ the EPSG code or proj4string for the output coordinate reference system
 \description{
 Return the EPSG code or proj4string syntax for the top-ranking projected coordinate reference system returned by \code{suggest_crs()}.  This function should be used with caution and is recommended for interactive work rather than in production data pipelines.
 }
+\examples{
+dontrun{
+
+library(tigris)
+library(crsuggest)
+
+# Get a dataset of Census tracts for Nassau County, NY
+nassau_tracts <- tracts("NY", "Nassau", cb = TRUE)
+
+# tigris datasets default to the NAD1983 GCS (EPSG code 4269)
+# What are some appropriate projected coordinate systems?
+suggest_crs(nassau_tracts)
+
+# Alternatively, we can require projections to have specific
+# geographic coordinate systems and/or units
+# For example, let's say we only want NAD83(HARN) (code 4152)
+# and we want the measurement units to be US feet
+suggest_crs(nassau_tracts, gcs = 4152, units = "us-ft")
+
+}
+}

@@ -20,7 +20,9 @@ Imports:
   mapview,
   utils
 Suggests:
-  mapboxapi
+  mapboxapi,
+  tigris,
+  tidycensus
 RoxygenNote: 7.1.1
 Depends: 
     R (>= 3.3)

@@ -144,6 +144,26 @@ suggest_crs <- function(input, type = "projected",
 #'
 #' @return the EPSG code or proj4string for the output coordinate reference system
 #' @export
+#'
+#' @examples dontrun{
+#'
+#' library(tigris)
+#' library(crsuggest)
+#'
+#' # Get a dataset of Census tracts for Nassau County, NY
+#' nassau_tracts <- tracts("NY", "Nassau", cb = TRUE)
+#'
+#' # tigris datasets default to the NAD1983 GCS (EPSG code 4269)
+#' # What are some appropriate projected coordinate systems?
+#' suggest_crs(nassau_tracts)
+#'
+#' # Alternatively, we can require projections to have specific
+#' # geographic coordinate systems and/or units
+#' # For example, let's say we only want NAD83(HARN) (code 4152)
+#' # and we want the measurement units to be US feet
+#' suggest_crs(nassau_tracts, gcs = 4152, units = "us-ft")
+#'
+#' }
 suggest_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
                             output = "epsg") {
 
