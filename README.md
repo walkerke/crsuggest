@@ -113,7 +113,7 @@ ggplot(cook_age, aes(fill = estimate)) +
 
 ![](tools/readme/cook_age.png)
 
-### Workflow 3: guessing the CRS of a dataset without projection information
+### Use case 3: guessing the CRS of a dataset without projection information
 
 Commonly, analysts will work with data for which the origin is not known.  These datasets may include CSV files that represent locations or shapefiles missing the .prj file for coordinate system information.  If these datasets are represented in projected coordinates, it can be difficult to figure out how to correctly handle the data in a geospatial software environment. 
 The `guess_crs()` function, inspired by the [WhatTheProj](https://stevage.github.io/WhatTheProj/) project, aims to help with this.  Consider this example dataset of locations collected in the field.  The coordinates are clearly from a projected CRS, but without knowledge of that CRS they cannot be mapped correctly.  
