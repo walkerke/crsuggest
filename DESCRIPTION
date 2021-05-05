@@ -2,7 +2,7 @@ Package: crsuggest
 Type: Package
 Title: Obtain Suggested Coordinate Reference System Information for Spatial Data
 Version: 0.3
-Date: 2021-05-04
+Date: 2021-05-05
 Authors@R: c(person(given = "Kyle", family = "Walker", 
            email="kyle@walker-data.com", role=c("aut", "cre")))
 Description: Uses data from the 'EPSG' Registry to look up suitable coordinate reference 

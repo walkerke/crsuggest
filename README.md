@@ -1,6 +1,6 @@
 # crsuggest
 
-{crsuggest} is a small R package to help spatial analysts determine an appropriate projected coordinate reference system for their data.  It implements functions that attempt to match an input spatial dataset with corresponding coordinate reference systems that will work well for mapping and/or spatial analysis.  The package is inspired by the more cleverly-named [projestions API](https://github.com/ebrelsford/projestions) and [companion QGIS plugin](https://github.com/ebrelsford/qgis-projestions).  It uses data from the EPSG Registry, a product of the International Association of Oil & Gas Producers, and [is subject to its terms of use for the data](https://epsg.org/terms-of-use.html).
+__crsuggest__ is a small R package to help spatial analysts determine an appropriate projected coordinate reference system for their data.  It implements functions that attempt to match an input spatial dataset with corresponding coordinate reference systems that will work well for mapping and/or spatial analysis.  The package is inspired by the more cleverly-named [projestions API](https://github.com/ebrelsford/projestions) and [companion QGIS plugin](https://github.com/ebrelsford/qgis-projestions).  It uses data from the EPSG Registry, a product of the International Association of Oil & Gas Producers, and [is subject to its terms of use for the data](https://epsg.org/terms-of-use.html).
 
 Install from GitHub with the following command in R:
 
@@ -139,7 +139,7 @@ mapview(locations_sf)
 
 ![](tools/readme/locations_no_crs.png)
 
-If the general location of the data is known, `guess_crs()` will make guesses on the coordinate system from which the data come.  The EPSG code will be returned along with a `dist_km` column; this is the distance between the center point of the input dataset and your known location _if_ they are in a given CRS.  If the distance is large, the coordinate system likely won't work.  If the [mapboxapi package]() is installed, you can supply a location name as your target location; otherwise, supply a length-2 coordinate pair vector of form `c(longitude, latitude)`.
+If the general location of the data is known, `guess_crs()` will make guesses on the coordinate system from which the data come.  The EPSG code will be returned along with a `dist_km` column; this is the distance between the center point of the input dataset and your known location _if_ they are in a given CRS.  If the distance is large, the coordinate system likely won't work.  If the [mapboxapi package](https://walker-data.com/mapboxapi/) is installed, you can supply a location name as your target location; otherwise, supply a length-2 coordinate pair vector of form `c(longitude, latitude)`.
 
 ```r
 library(crsuggest)
@@ -172,6 +172,6 @@ mapview(locations_sf)
 
 ### A word of caution: 
 
-{crsuggest} is designed to make CRS _recommendations_: the right CRS for your project will be based on a variety of factors that can't always safely be automated.  If you intend to use these tools in production data pipelines, use at your own risk and I would strongly recommend checking your data for unexpected results. I personally the packages as a "look-up" tool to help you make informed decisions.  Research the coordinate system you plan to use - and how it handles distortion of your data - before settling on it for use in production.  
+__crsuggest__ is designed to make CRS _recommendations_: the right CRS for your project will be based on a variety of factors that can't always safely be automated.  If you intend to use these tools in production data pipelines, use at your own risk and I would strongly recommend checking your data for unexpected results. I personally the packages as a "look-up" tool to help you make informed decisions.  Research the coordinate system you plan to use - and how it handles distortion of your data - before settling on it for use in production.  
 
 
