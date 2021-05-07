@@ -66,7 +66,10 @@ guess_crs <- function(input_sf, target_location, units = NULL,
 
   # If mapboxapi is installed, geocode the address
   if (is.character(target_location)) {
-    if (!"mapboxapi" %in% utils::installed.packages()) {
+
+    check_mapbox <- try(find.package("mapboxapi"), silent = TRUE)
+
+    if ("try-error" %in% class(check_mapbox)) {
       stop("The mapboxapi package is used for geocoding functionality; please install and set up mapboxapi or supply a coordinate pair instead.", call. = FALSE)
     } else {
       target_coords <- mapboxapi::mb_geocode(target_location)
