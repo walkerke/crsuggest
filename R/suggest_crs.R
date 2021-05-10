@@ -4,7 +4,7 @@
 #' coordinate reference systems that could be used for CRS transformations in spatial analysis
 #' projects.  The function works by analyzing the extent of the spatial dataset and comparing it
 #' to the area extents in the EPSG's coordinate reference system database.  The "suggested"
-#' coordinate reference systems are determined by minimizing the Haussdorf distances between
+#' coordinate reference systems are determined by minimizing the Hausdorff distances between
 #' the CRS area extents and the input dataset, subject to user preferences (such as
 #' a geographic coordinate system ID or measurement units).
 #'
