@@ -1,8 +1,16 @@
 # crsuggest
 
+[![CRAN status](https://www.r-pkg.org/badges/version/crsuggest)](https://CRAN.R-project.org/package=crsuggest) ![CRAN Downloads](http://cranlogs.r-pkg.org/badges/crsuggest)
+
 __crsuggest__ is a small R package to help spatial analysts determine an appropriate projected coordinate reference system for their data.  It implements functions that attempt to match an input spatial dataset with corresponding coordinate reference systems that will work well for mapping and/or spatial analysis.  The package is inspired by the more cleverly-named [projestions API](https://github.com/ebrelsford/projestions) and [companion QGIS plugin](https://github.com/ebrelsford/qgis-projestions).  It uses data from the EPSG Registry, a product of the International Association of Oil & Gas Producers, and [is subject to its terms of use for the data](https://epsg.org/terms-of-use.html).
 
-Install from GitHub with the following command in R:
+Install from CRAN with the following command in R:
+
+```r
+install.packages("crsuggest")
+```
+
+Or get the development version from GitHub:
 
 ```r
 remotes::install_github("walkerke/crsuggest")
