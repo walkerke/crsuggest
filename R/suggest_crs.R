@@ -14,6 +14,7 @@
 #' @param limit How many results to return; defaults to \code{10}.
 #' @param gcs (optional) The EPSG code for the corresponding geographic coordinate system of the results (e.g. \code{4326} for WGS 1984).
 #' @param units (optional) The measurement units of the coordinate systems in the returned results.  Can be one of \code{"m"}, \code{"ft"}, or \code{"ft-us"}.
+#' @param drop_na Whether or not to drop EPSG codes that do not appear in the PROJ database (and thus can't be used for CRS transformation). Defauts to \code{TRUE}; set to \code{FALSE} if you want to search all codes.
 #'
 #' @return A data frame with information about coordinate reference systems that could be suitably used for CRS transformation.
 #' @export
@@ -39,7 +40,7 @@
 #' }
 suggest_crs <- function(input, type = "projected",
                         limit = 10, gcs = NULL,
-                        units = NULL) {
+                        units = NULL, drop_na = TRUE) {
 
   # If the input is a raster layer, convert to a polygon at the
   # extent of that layer
@@ -61,6 +62,11 @@ suggest_crs <- function(input, type = "projected",
 
   # Filter the CRS object for the selected type, GCS, and units if requested
   crs_type <- dplyr::filter(crsuggest::crs_sf, crs_type == type)
+
+  # If drop_na is set to TRUE, get rid of all missing PROJ4 entries
+  if (drop_na) {
+    crs_type <- dplyr::filter(crs_type, !is.na(crs_proj4))
+  }
 
   if (!is.null(gcs)) {
     gcs <- as.character(gcs)
