@@ -212,6 +212,13 @@ suggest_crs <- function(input, type = "projected",
 suggest_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
                             output = "epsg") {
 
+  # Check to see if the current CRS is in the EPSG dataset
+  current_crs <- sf::st_crs(input)$epsg
+
+  # If it isn't, inherit_gcs needs to be FALSE
+  if (is.na(current_crs)) {
+    inherit_gcs <- FALSE
+  }
 
   if (inherit_gcs) {
     # First, determine if the dataset is in a GCS already
