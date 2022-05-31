@@ -141,10 +141,17 @@ suggest_crs <- function(input, type = "projected",
   if (vertex_count > 500) {
     tol <- 5000
     vc <- vertex_count
+    previous_vc <- vc
     while (vc > 500) {
       sf_poly <- st_simplify(sf_poly, dTolerance = tol)
       vc <- mapview::npts(sf_poly)
+
       tol <- tol * 2
+
+      # At some point, st_simplify() is not simplifying anymore. Stop the loop.
+      if (vc == previous_vc) break
+
+      previous_vc <- vc
     }
   }
 
