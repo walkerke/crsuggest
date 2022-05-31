@@ -84,13 +84,18 @@ suggest_crs <- function(input, type = "projected",
   # Transform the input SF object to 32663 for overlay
   sf_proj <- st_transform(input, st_crs(crs_type))
 
+
   # If geometry type is POINT or MULTIPOINT, union then find the convex hull
   # If geometry type is LINESTRING or MULTILINESTRING, cast as POINT then do the above
   # If geometry type is POLYGON or MULTIPOLYGON, union
   geom_type <- unique(st_geometry_type(sf_proj))
 
-  # Consider at later date how to handle mixed geometries
-  # Also consider whether to use concave hulls instead to avoid edge cases
+  # For mixed geometries, union then buffer for a polygon
+  if (length(geom_type) > 1) {
+    geom_buf <- st_buffer(st_union(sf_proj), 100)
+    geom_type <- unique(st_geometry_type(geom_buf))
+    sf_proj <- st_sf(geom_buf)
+  }
 
   if (geom_type %in% c("POINT", "MULTIPOINT")) {
     # If it is one or two points, buffer it
@@ -115,9 +120,9 @@ suggest_crs <- function(input, type = "projected",
   # Subset the area extent polygons further to those that intersect with our area of interest
   # To (try to) avoid edge cases, compute a "reverse buffer" of the geometry
   # by which we remove the area within 500m of the polygon's boundary
+
   reverse_buf <- st_buffer(sf_poly, -500)
 
-  crs_sub <- crs_type[reverse_buf, ]
 
   # If this doesn't yield anything, we need to re-run and keep trying until
   # we get a valid result
@@ -137,6 +142,8 @@ suggest_crs <- function(input, type = "projected",
   # Keep simplifying until the count is sufficiently reduced
   # (as general shape will be OK here)
   vertex_count <- mapview::npts(sf_poly)
+  # Hold the original sf_poly if you need it
+  sf_poly2 <- sf_poly
 
   if (vertex_count > 500) {
     tol <- 5000
@@ -144,9 +151,16 @@ suggest_crs <- function(input, type = "projected",
     previous_vc <- vc
     while (vc > 500) {
       sf_poly <- st_simplify(sf_poly, dTolerance = tol)
-      vc <- mapview::npts(sf_poly)
+      # If this produces an empty geometry, just don't worry about it
+      # and exit the loop
+      if (st_is_empty(sf_poly)) {
+        vc <- 499
+        sf_poly <- sf_poly2
+      } else {
+        vc <- mapview::npts(sf_poly)
 
-      tol <- tol * 2
+        tol <- tol * 2
+      }
 
       # At some point, st_simplify() is not simplifying anymore. Stop the loop.
       if (vc == previous_vc) break
@@ -284,4 +298,37 @@ suggest_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
 
   return(toreturn)
 
+}
+
+
+
+#' Quickly preview the extent of a given CRS using mapview
+#'
+#' The crsuggest package makes coordinate reference systems \emph{suggestions} that may not be perfect for your specific analytic use case.  Use \code{view_crs()} to quickly view the geographic extent of a given coordinate reference system (represented by its EPSG code) and assess whether that CRS makes sense for your data.
+#'
+#' @param crs A character string representing the EPSG code of an input coordinate reference system, possibly returned by \code{suggest_top_crs}.
+#'
+#' @return an object of class \code{mapview} which uses the mapview package to preview the extent of a coordinate reference system.
+#' @export
+#'
+#' @examples \dontrun{
+#'
+#' library(tigris)
+#' library(crsuggest)
+#' options(tigris_use_cache = TRUE)
+#'
+#' # Get a Census tract dataset from the tigris package
+#' tarrant_tracts <- tracts("TX", "Tarrant", cb = TRUE, year = 2021)
+#'
+#' # Suggest a CRS for your data
+#' target_crs <- suggest_top_crs(tarrant_tracts, units = "m", inherit_gcs = FALSE)
+#'
+#' # Preview the extent of the CRS
+#' view_crs(target_crs)
+#'
+#' }
+view_crs <- function(crs) {
+  crs_geom <- dplyr::filter(crs_sf, crs_code == crs)
+
+  mapview::mapview(crs_geom, layer.name = sprintf("CRS: %s", crs))
 }

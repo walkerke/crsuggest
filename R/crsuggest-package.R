@@ -11,6 +11,6 @@
 #' @import purrr
 #' @import sf
 #' @import dplyr
-#' @importFrom mapview npts
+#' @importFrom mapview npts mapview
 #' @importFrom utils installed.packages
 NULL
