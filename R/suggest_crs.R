@@ -42,9 +42,13 @@ suggest_crs <- function(input, type = "projected",
                         limit = 10, gcs = NULL,
                         units = NULL, drop_na = TRUE) {
 
-  # If the input is a raster layer, convert to a polygon at the
+  if (is.na(st_crs(input))) {
+    stop("Your dataset is missing an existing CRS definition.\nEither assign an appropriate CRS to your dataset or find one with\nthe crsuggest::guess_crs() function.", call. = FALSE)
+  }
+
+  # If the input is a raster layer or a terra object, convert to a polygon at the
   # extent of that layer
-  if ("RasterLayer" %in% class(input)) {
+  if (inherits(input, "RasterLayer") || inherits(input, "SpatRaster") || inherits(input, "SpatVector")) {
     input <- input %>%
       st_bbox() %>%
       st_as_sfc()
@@ -123,6 +127,7 @@ suggest_crs <- function(input, type = "projected",
 
   reverse_buf <- st_buffer(sf_poly, -500)
 
+  crs_sub <- crs_type[reverse_buf, ]
 
   # If this doesn't yield anything, we need to re-run and keep trying until
   # we get a valid result
