@@ -1,7 +1,8 @@
 #' Guess the CRS of a dataset that is missing CRS information
 #'
 #' This function will "guess" possible coordinate reference systems for spatial data that are
-#' lacking a CRS definition.  Input data, which must be of class \code{"sf"}, might be objects
+#' lacking a CRS definition.  Input data, which must be of class \code{"sf"}
+#' (or which can be converted to sf) might be objects
 #' created from CSV files that use projected coordinates or objects created from shapefiles
 #' loaded with \code{sf::st_read()} that are missing .prj files.  The function requires a
 #' "target location" that the user knows to be within the general area of the input dataset.  It
@@ -11,7 +12,8 @@
 #' short distances represent better guesses for the CRS whereas longer distances suggest that
 #' the CRS wouldn't work.
 #'
-#' @param input_sf An input sf object in a projected coordinate system that is
+#' @param input_sf An input sf object (or object that can be converted to sf)
+#'                 in a projected coordinate system that is
 #'                 missing CRS information. For example, you may have loaded in a shapefile without
 #'                 a .prj file, or your input data has no CRS definition attached.
 #' @param target_location A coordinate pair of form \code{c(longitude, latitude)}
@@ -93,6 +95,25 @@ guess_crs <- function(input_sf, target_location, units = NULL,
   # if known
   crs_options <- crsuggest::suggest_crs(target_sf, limit = 50, units = units) %>%
     dplyr::filter(!is.na(crs_units))
+
+  # If the input object is not sf but of another spatial class, convert it
+  # If the input is a raster layer or a terra object, convert to a polygon at the
+  # extent of that layer
+  if (inherits(input_sf, "RasterLayer") || inherits(input_sf, "SpatRaster") || inherits(input_sf, "SpatVector")) {
+    input_sf <- input_sf %>%
+      st_bbox() %>%
+      st_as_sfc()
+  }
+
+  # If object is from the sp package, convert to sf
+  if (any(grepl("Spatial", class(input_sf)))) {
+    input <- st_as_sf(input_sf)
+  }
+
+  # If it is a simple feature collection, make into sf
+  if (inherits(input_sf, "sfc")) {
+    input_sf <- st_sf(input_sf)
+  }
 
   # We now need to get the centroid of the input sf object with no CRS
   no_crs_centroid <- suppressMessages(suppressWarnings(st_centroid(st_union(input_sf))))

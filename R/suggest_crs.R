@@ -60,7 +60,7 @@ suggest_crs <- function(input, type = "projected",
   }
 
   # If it is a simple feature collection, make into sf
-  if ("sfc" %in% class(input)) {
+  if (inherits(input, "sfc")) {
     input <- st_sf(input)
   }
 
@@ -333,7 +333,7 @@ suggest_top_crs <- function(input, units = NULL, inherit_gcs = TRUE,
 #'
 #' }
 view_crs <- function(crs) {
-  crs_geom <- dplyr::filter(crs_sf, crs_code == crs)
+  crs_geom <- dplyr::filter(crsuggest::crs_sf, crs_code == crs)
 
   mapview::mapview(crs_geom, layer.name = sprintf("CRS: %s", crs))
 }
