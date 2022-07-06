@@ -8,8 +8,7 @@
 #' the CRS area extents and the input dataset, subject to user preferences (such as
 #' a geographic coordinate system ID or measurement units).
 #'
-#' @param input A spatial dataset of class \code{"sf"}, \code{"Spatial*"}, or
-#'              \code{"RasterLayer"}.
+#' @param input A spatial dataset of class \code{"sf"}, \code{"Spatial*"},               \code{"RasterLayer"}, \code{"SpatVector"}, or \code{"SpatRaster"} for which you would like coordinate reference system suggestions.
 #' @param type The output CRS type; defaults to \code{"projected"}.
 #' @param limit How many results to return; defaults to \code{10}.
 #' @param gcs (optional) The EPSG code for the corresponding geographic coordinate system of the results (e.g. \code{4326} for WGS 1984).

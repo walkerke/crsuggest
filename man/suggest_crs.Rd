@@ -14,8 +14,7 @@ suggest_crs(
 )
 }
 \arguments{
-\item{input}{A spatial dataset of class \code{"sf"}, \code{"Spatial*"}, or
-\code{"RasterLayer"}.}
+\item{input}{A spatial dataset of class \code{"sf"}, \code{"Spatial*"},               \code{"RasterLayer"}, \code{"SpatVector"}, or \code{"SpatRaster"} for which you would like coordinate reference system suggestions.}
 
 \item{type}{The output CRS type; defaults to \code{"projected"}.}
 
