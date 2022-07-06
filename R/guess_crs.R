@@ -153,11 +153,11 @@ guess_crs <- function(input, target_location, units = NULL,
   # Give an informative message based on the original type
   if (inherits(original_input, "sf") || inherits(original_input, "sfc")) {
     message(sprintf("The 'best guess' for the CRS of your data is EPSG code %s.\nUse `sf::st_crs(your_data) <- %s` to use this CRS for your data.\nView the returned dataset for other possible options.", top_crs, top_crs))
-  } else if (inherits(input, "SpatRaster") || inherits(input, "SpatVector")) {
+  } else if (inherits(original_input, "SpatRaster") || inherits(input, "SpatVector")) {
     message(sprintf("The 'best guess' for the CRS of your data is EPSG code %s.\nUse `terra::crs(your_data) <- %s` to use this CRS for your data.\nView the returned dataset for other possible options.", top_crs, top_crs))
-  } else if (any(grepl("Spatial", class(input)))) {
+  } else if (any(grepl("Spatial", class(original_input)))) {
     message(sprintf("The 'best guess' for the CRS of your data is EPSG code %s.\nUse `sp::CRS(your_data) <- %s` to use this CRS for your data.\nView the returned dataset for other possible options.", top_crs, top_crs))
-  } else if (inherits(input, "RasterLayer")) {
+  } else if (inherits(original_input, "RasterLayer")) {
     message(sprintf("The 'best guess' for the CRS of your data is EPSG code %s.\nUse `raster::projection(your_data) <- %s` to use this CRS for your data.\nView the returned dataset for other possible options.", top_crs, top_crs))
   }
 
