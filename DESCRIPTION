@@ -11,6 +11,8 @@ Description: Uses data from the 'EPSG' Registry to look up suitable coordinate r
     the 'EPSG' Dataset Terms of Use at <https://epsg.org/terms-of-use.html> for more information.
 License: MIT + file LICENSE
 Encoding: UTF-8
+URL: https://github.com/walkerke/crsuggest
+BugReports: https://github.com/walkerke/crsuggest/issues
 LazyData: true
 LazyDataCompression: xz
 Imports:
